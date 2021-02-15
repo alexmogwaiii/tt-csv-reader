@@ -3,18 +3,9 @@ import { STATES } from './states';
 export const validateUsers = (data) => {
   const validatedUsers = data.map((user, index) => ({
     ...user.data,
-    age: {
-      value: user.data.age,
-      status: validateAge(user.data.age),
-    },
-    experience: {
-      value: user.data.experience,
-      status: validateExperience(user.data.age, user.data.experience),
-    },
-    yearlyIncome: {
-      value: +user.data.yearlyIncome.toFixed(2),
-      status: validateYearlyIncome(user.data.yearlyIncome),
-    },
+    age: validateAge(user.data.age),
+    experience: validateExperience(user.data.age, user.data.experience),
+    yearlyIncome: validateYearlyIncome(user.data.yearlyIncome),
     licenseStates: validateLicenseStates(user.data.licenseStates),
     expirationDate: validateDate(user.data.expirationDate),
     phone: validatePhone(user.data.phone),
@@ -27,23 +18,20 @@ export const validateUsers = (data) => {
   return validatedUsers;
 };
 
-const validateAge = age => (age >= 21);
+const validateAge = age => ({
+  value: age,
+  status: age >= 21,
+});
 
-const validateExperience = (currentAge, experience) => {
-  if (experience >= 0 && experience <= currentAge) {
-    return true;
-  }
+const validateExperience = (currentAge, experience) => ({
+  value: experience,
+  status: experience >= 0 && experience <= currentAge,
+});
 
-  return false;
-};
-
-const validateYearlyIncome = (yearlyIncome) => {
-  if (yearlyIncome > 1000000) {
-    return false;
-  }
-
-  return true;
-};
+const validateYearlyIncome = yearlyIncome => ({
+  value: Math.round(yearlyIncome * 100) / 100,
+  status: yearlyIncome < 1000000,
+});
 
 const validateLicenseStates = (licenseStates) => {
   const invalidStateName = {
